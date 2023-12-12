@@ -1,7 +1,6 @@
 import openpyxl
 import tkinter as tk
 from tkinter import filedialog
-from tkinter import font
 import requests
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -213,7 +212,6 @@ def print_labels(barcode, text, quantity):
       i += 1
 
 
-# Funzione principale
 def main():
     excel_file = excel_file_entry.get()
     if excel_file:
@@ -221,43 +219,50 @@ def main():
             wb = openpyxl.load_workbook(excel_file)
             sheet = wb.active
             for row in sheet.iter_rows(min_row=6, values_only=True):
-                barcode, text, quantity = row[4], row[0], row[9] # Considera solo le colonne interessate
+                barcode, text, quantity = row[4], row[0], row[9] # Consider only the columns with the necessary data
                 if (quantity != None):
                   print_labels(barcode, text, quantity)
-            status_label.config(text="Etichette stampate con successo.")
+            status_label.config(text="Labels printed successfully.")
         except Exception as e:
-            status_label.config(text=f"Errore durante la lettura di Excel: {str(e)}")
+            status_label.config(text=f"Error: {str(e)}")
     else:
-        status_label.config(text="Seleziona un file Excel.")
+        status_label.config(text="Select an Excel file.")
 
-# Funzione per selezionare il file Excel
+
 def browse_file():
     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
     if file_path:
         excel_file_entry.delete(0, tk.END)
         excel_file_entry.insert(0, file_path)
 
-# Configura la root Tkinter
+
 root = tk.Tk()
-root.title("Stampa Etichette da Excel")
+root.title("Print labels from Excel")
 root.geometry("400x200")
 
 frame = tk.Frame(root)
 frame.pack(pady=20)
 
-excel_file_label = tk.Label(frame, text="Seleziona il file Excel:")
+excel_file_label = tk.Label(frame, text="Select an Excel file:")
 excel_file_label.grid(row=0, column=0)
 
 excel_file_entry = tk.Entry(frame, width=30)
 excel_file_entry.grid(row=0, column=1)
 
-browse_button = tk.Button(frame, text="Sfoglia", command=browse_file)
+browse_button = tk.Button(frame, text="Browse", command=browse_file)
 browse_button.grid(row=0, column=2)
 
-print_button = tk.Button(frame, text="Stampa Etichette", command=main)
+print_button = tk.Button(frame, text="Print labels", command=main)
 print_button.grid(row=1, column=1)
 
 status_label = tk.Label(root, text="")
 status_label.pack()
+
+try:
+  resp = requests.get('https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected')
+  if (resp.text != 'true'):
+    status_label.config(text=f"Error: DYMO web service is not available.")
+except Exception as e:
+  status_label.config(text=f"Error: DYMO web service is not available. {str(e)}")
 
 root.mainloop()
