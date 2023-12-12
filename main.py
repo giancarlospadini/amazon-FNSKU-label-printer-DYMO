@@ -7,7 +7,15 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-# Funzione per stampare etichette
+# check driver status:
+# https://localhost:41951/DYMO/DLS/Printing/StatusConnected
+# https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected
+
+# list connected printers:
+# https://localhost:41951/DYMO/DLS/Printing/GetPrinters
+# https://127.0.0.1:41951/DYMO/DLS/Printing/GetPrinters
+
+
 def print_labels(barcode, text, quantity):
     
     label_xml = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -214,7 +222,7 @@ def main():
             sheet = wb.active
             for row in sheet.iter_rows(min_row=6, values_only=True):
                 barcode, text, quantity = row[4], row[0], row[9] # Considera solo le colonne interessate
-                if (row[9] !== None):
+                if (quantity != None):
                   print_labels(barcode, text, quantity)
             status_label.config(text="Etichette stampate con successo.")
         except Exception as e:
