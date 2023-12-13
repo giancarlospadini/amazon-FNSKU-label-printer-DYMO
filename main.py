@@ -259,7 +259,10 @@ status_label = tk.Label(root, text="")
 status_label.pack()
 
 try:
-  resp = requests.get('https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected')
+  resp = requests.get(
+                      'https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected',
+                      verify=False
+  )
   if (resp.text != 'true'):
     status_label.config(text=f"Error: DYMO web service is not available.")
 except Exception as e:
